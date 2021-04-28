@@ -1,16 +1,24 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
 const (
-	ACCEPTED = "Accepted"
-	SUCCESS  = " Succeeded"
-	NONE     = "None"
+	ACCEPTED  = "Accepted"
+	SUCCESS   = " Succeeded"
+	NONE      = ""
+	URL_BASE  = "https://openshift-release.apps.ci.l2s4.p1.openshiftapps.com/"
+	URL_MID   = URL_BASE + "releasestream/"
+	URL_END   = "/release/"
+	ERROR     = "Error"
+	ERROR_DOC = "Error reading URL"
+	VERSION   = "4.8.0-0."
 )
 
 var (
@@ -19,11 +27,21 @@ var (
 	ex               bool
 )
 
-func postScrape(cond string) string {
+func getTagFromVersion(version string) string {
+	switch version {
+	case "ci", "CI", "Ci":
+		return VERSION + ".ci"
+	default:
+		return VERSION + ".nightly"
+	}
+}
 
-	doc, err := goquery.NewDocument("https://openshift-release.apps.ci.l2s4.p1.openshiftapps.com/#4.8.0-0.nightly")
+func getBestReleaseCandidate(version, cond string) string {
+
+	doc, err := goquery.NewDocument(URL_BASE + "#" + getTagFromVersion(version))
 	if err != nil {
 		log.Fatal(err)
+		return ERROR_DOC
 	}
 
 	doc.Find("body > div > div.row > div > table:nth-child(10) > tbody").Each(func(index int, tablehtml *goquery.Selection) {
@@ -42,24 +60,20 @@ func postScrape(cond string) string {
 			row = nil
 		})
 	})
-	//log.Println("####### headings = ", len(ref), ref)
-	//log.Println("####### status = ", len(status), status)
-	//log.Println("####### rows = ", len(rows), rows)
 
 	for i, v := range status {
 
 		if v == ACCEPTED {
-			//log.Println("selected -----> " + ref[i])
 
-			doc2, err := goquery.NewDocument("https://openshift-release.apps.ci.l2s4.p1.openshiftapps.com/releasestream/4.8.0-0.nightly/release/" + ref[i])
+			doc2, err := goquery.NewDocument(URL_BASE + URL_MID + getTagFromVersion(version) + URL_END + ref[i])
 			if err != nil {
 				log.Fatal(err)
+				return ERROR_DOC
 			}
 			doc2.Find("body > div > ul:nth-child(7) > li:nth-child(2) > ul").Each(func(index int, tablehtml *goquery.Selection) {
 				tablehtml.Find("li").Each(func(indextr int, rowhtml *goquery.Selection) {
 					rowhtml.Find(".text-success").Each(func(indexth int, tablecell *goquery.Selection) {
 						if tablecell.Text() == cond+SUCCESS {
-							//log.Println("------encontracdo----> " + tablecell.Text())
 							ex = true
 						}
 					})
@@ -75,5 +89,19 @@ func postScrape(cond string) string {
 }
 
 func main() {
-	fmt.Println(postScrape("metal-assisted"))
+	v := flag.String("v", "nightly", "Version to be used: [ci|nightly] ")
+	c := flag.String("c", "metal-assisted", "condition to be present. Ex: 'metal-assisted'")
+	h := flag.Bool("h", false, "Help")
+	flag.Parse()
+
+	if *h {
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+	if len(os.Args) < 2 {
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	fmt.Println(getBestReleaseCandidate(*v, *c))
 }
