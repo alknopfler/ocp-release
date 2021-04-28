@@ -71,7 +71,7 @@ func postScrape(cond string) string {
 			}
 		}
 	}
-	return "None"
+	return NONE
 }
 
 func main() {
