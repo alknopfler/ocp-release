@@ -4,9 +4,13 @@ This is one of the ways to get the best candidate release for the ocp installati
 
 ## Install 
 
-Just to install the binary in your system:
+- Just to install the binary in your system:
 
-curl https://github.com/alknopfler/ocp-release@v1.0.0! | sh
+[https://github.com/alknopfler/ocp-release/releases/latest](https://github.com/alknopfler/ocp-release/releases/latest)
+
+- Download the file for your OS
+- Unzip/unTar the file to locate into a folder inside your $PATH
+
 
 ## Use it
 
