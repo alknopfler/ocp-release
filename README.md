@@ -29,5 +29,10 @@ For example:
 ./ocp-release -v nightly -c assisted-metal
 ```
 
+You could also match an array of conditions:
+
+```commandline
+./ocp-release -v nightly -c assisted-metal aws metal-ipi
+```
 
 
