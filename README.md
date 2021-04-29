@@ -2,14 +2,14 @@
 
 This is one of the ways to get the best candidate release for the ocp installation based on the version type you need (nightly or CI) and filtered by a condition which must be success.
 
-## Install 
+## Install it (Windows/macOS/Linux)
 
-- Just to install the binary in your system:
+- To Install the binary in your system just get the latest release:
 
 [https://github.com/alknopfler/ocp-release/releases/latest](https://github.com/alknopfler/ocp-release/releases/latest)
 
-- Download the file for your OS
-- Unzip/unTar the file to locate into a folder inside your $PATH
+- Download the file for your OS distribution (Go Binary complied for several OS)
+- Unzip/unTar the binary into a folder inside your $PATH
 
 
 ## Use it
