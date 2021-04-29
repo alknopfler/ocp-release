@@ -37,7 +37,7 @@ func getTagFromVersion(version string) string {
 	}
 }
 
-func getBestReleaseCandidate(version, cond string) {
+func getBestReleaseCandidate(version string, cond []string) {
 
 	doc, err := goquery.NewDocument(URL_BASE + "#" + getTagFromVersion(version))
 	if err != nil {
@@ -61,7 +61,7 @@ func getBestReleaseCandidate(version, cond string) {
 			row = nil
 		})
 	})
-
+	num := 0
 	for i, v := range status {
 
 		if v == ACCEPTED {
@@ -73,16 +73,21 @@ func getBestReleaseCandidate(version, cond string) {
 			doc2.Find("body > div > ul:nth-child(7) > li:nth-child(2) > ul").Each(func(index int, tablehtml *goquery.Selection) {
 				tablehtml.Find("li").Each(func(indextr int, rowhtml *goquery.Selection) {
 					rowhtml.Find(".text-success").Each(func(indexth int, tablecell *goquery.Selection) {
-						if tablecell.Text() == cond+SUCCESS {
-							//log.Println("------encontracdo----> " + tablecell.Text())
-							fmt.Println(OUTPUT + ref[i])
-							ex = true
+						for v := range cond {
+							if tablecell.Text() == cond[v]+SUCCESS {
+								//log.Println("------encontracdo----> " + tablecell.Text())
+								//fmt.Println(OUTPUT + ref[i])
+								ex = true
+								num++
+							}
 						}
+
 					})
 
 				})
 			})
-			if ex {
+			if ex && len(cond) == num {
+				fmt.Println(OUTPUT + ref[i])
 				return
 			}
 		}
@@ -90,19 +95,22 @@ func getBestReleaseCandidate(version, cond string) {
 }
 
 func main() {
-	v := flag.String("v", "nightly", "Version to be used: [ci|nightly] ")
-	c := flag.String("c", "metal-assisted", "condition to be present. Ex: 'metal-assisted'")
-	h := flag.Bool("h", false, "Help")
+
+	v := flag.String("v", "", "Version to be used: -v [ci|nightly] ")
+	flag.Bool("c", false, "condition array to be present. Ex: '-c metal-assisted aws metal-ipi'")
+	h := flag.Bool("h", false, "Help usage example: ./ocp-release -v nightly -c metal-ipi aws gcp")
 	flag.Parse()
+	tail := flag.Args()
 
 	if *h {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
-	if len(os.Args) < 2 {
+	if len(tail) < 1 {
 		flag.PrintDefaults()
-		os.Exit(1)
+		fmt.Println("sssss")
+		os.Exit(2)
 	}
 
-	getBestReleaseCandidate(*v, *c)
+	getBestReleaseCandidate(*v, tail)
 }
