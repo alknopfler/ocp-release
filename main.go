@@ -12,13 +12,13 @@ import (
 const (
 	ACCEPTED  = "Accepted"
 	SUCCESS   = " Succeeded"
-	NONE      = ""
+	NONE      = "None"
 	URL_BASE  = "https://openshift-release.apps.ci.l2s4.p1.openshiftapps.com/"
 	URL_MID   = URL_BASE + "releasestream/"
 	URL_END   = "/release/"
 	ERROR     = "Error"
 	ERROR_DOC = "Error reading URL"
-	VERSION   = "4.8.0-0."
+	VERSION   = "4.8.0-0"
 )
 
 var (
@@ -36,12 +36,12 @@ func getTagFromVersion(version string) string {
 	}
 }
 
-func getBestReleaseCandidate(version, cond string) string {
+func getBestReleaseCandidate(version, cond string) {
 
 	doc, err := goquery.NewDocument(URL_BASE + "#" + getTagFromVersion(version))
 	if err != nil {
 		log.Fatal(err)
-		return ERROR_DOC
+		return
 	}
 
 	doc.Find("body > div > div.row > div > table:nth-child(10) > tbody").Each(func(index int, tablehtml *goquery.Selection) {
@@ -64,16 +64,17 @@ func getBestReleaseCandidate(version, cond string) string {
 	for i, v := range status {
 
 		if v == ACCEPTED {
-
-			doc2, err := goquery.NewDocument(URL_BASE + URL_MID + getTagFromVersion(version) + URL_END + ref[i])
+			doc2, err := goquery.NewDocument(URL_MID + getTagFromVersion(version) + URL_END + ref[i])
 			if err != nil {
 				log.Fatal(err)
-				return ERROR_DOC
+				return
 			}
 			doc2.Find("body > div > ul:nth-child(7) > li:nth-child(2) > ul").Each(func(index int, tablehtml *goquery.Selection) {
 				tablehtml.Find("li").Each(func(indextr int, rowhtml *goquery.Selection) {
 					rowhtml.Find(".text-success").Each(func(indexth int, tablecell *goquery.Selection) {
 						if tablecell.Text() == cond+SUCCESS {
+							//log.Println("------encontracdo----> " + tablecell.Text())
+							fmt.Println(ref[i])
 							ex = true
 						}
 					})
@@ -81,11 +82,10 @@ func getBestReleaseCandidate(version, cond string) string {
 				})
 			})
 			if ex {
-				return ref[i]
+				return
 			}
 		}
 	}
-	return NONE
 }
 
 func main() {
@@ -103,5 +103,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(getBestReleaseCandidate(*v, *c))
+	getBestReleaseCandidate(*v, *c)
 }
