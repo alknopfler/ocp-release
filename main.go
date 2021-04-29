@@ -19,6 +19,7 @@ const (
 	ERROR     = "Error"
 	ERROR_DOC = "Error reading URL"
 	VERSION   = "4.8.0-0"
+	OUTPUT    = "registry.ci.openshift.org/ocp/release:"
 )
 
 var (
@@ -74,7 +75,7 @@ func getBestReleaseCandidate(version, cond string) {
 					rowhtml.Find(".text-success").Each(func(indexth int, tablecell *goquery.Selection) {
 						if tablecell.Text() == cond+SUCCESS {
 							//log.Println("------encontracdo----> " + tablecell.Text())
-							fmt.Println(ref[i])
+							fmt.Println(OUTPUT + ref[i])
 							ex = true
 						}
 					})
