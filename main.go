@@ -81,7 +81,21 @@ func getBestReleaseCandidate(version string, cond []string) {
 								num++
 							}
 						}
+					})
 
+				})
+			})
+			doc2.Find("body > div > ul:nth-child(7) > li:nth-child(1) > ul").Each(func(index int, tablehtml *goquery.Selection) {
+				tablehtml.Find("li").Each(func(indextr int, rowhtml *goquery.Selection) {
+					rowhtml.Find(".text-success").Each(func(indexth int, tablecell *goquery.Selection) {
+						for v := range cond {
+							if tablecell.Text() == cond[v]+SUCCESS {
+								//log.Println("------encontracdo----> " + tablecell.Text())
+								//fmt.Println(OUTPUT + ref[i])
+								ex = true
+								num++
+							}
+						}
 					})
 
 				})
