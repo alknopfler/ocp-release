@@ -45,7 +45,7 @@ func getBestReleaseCandidate(version string, cond []string) {
 		return
 	}
 
-	doc.Find("body > div > div.row > div > table:nth-child(10) > tbody").Each(func(index int, tablehtml *goquery.Selection) {
+	doc.Find("body > div > div.row > div > table:nth-child(11) > tbody").Each(func(index int, tablehtml *goquery.Selection) {
 		tablehtml.Find("tr").Each(func(indextr int, rowhtml *goquery.Selection) {
 			rowhtml.Find("td").Each(func(indexth int, tablecell *goquery.Selection) {
 				row = append(row, tablecell.Text())
@@ -63,35 +63,18 @@ func getBestReleaseCandidate(version string, cond []string) {
 	})
 	num := 0
 	for i, v := range status {
-
 		if v == ACCEPTED {
 			doc2, err := goquery.NewDocument(URL_MID + getTagFromVersion(version) + URL_END + ref[i])
 			if err != nil {
 				log.Fatal(err)
 				return
 			}
-			doc2.Find("body > div > ul:nth-child(7) > li:nth-child(2) > ul").Each(func(index int, tablehtml *goquery.Selection) {
-				tablehtml.Find("li").Each(func(indextr int, rowhtml *goquery.Selection) {
-					rowhtml.Find(".text-success").Each(func(indexth int, tablecell *goquery.Selection) {
-						for v := range cond {
-							if tablecell.Text() == cond[v]+SUCCESS {
-								//log.Println("------encontracdo----> " + tablecell.Text())
-								//fmt.Println(OUTPUT + ref[i])
-								ex = true
-								num++
-							}
-						}
-					})
-
-				})
-			})
 			doc2.Find("body > div > ul:nth-child(7) > li:nth-child(1) > ul").Each(func(index int, tablehtml *goquery.Selection) {
 				tablehtml.Find("li").Each(func(indextr int, rowhtml *goquery.Selection) {
 					rowhtml.Find(".text-success").Each(func(indexth int, tablecell *goquery.Selection) {
 						for v := range cond {
 							if tablecell.Text() == cond[v]+SUCCESS {
 								//log.Println("------encontracdo----> " + tablecell.Text())
-								//fmt.Println(OUTPUT + ref[i])
 								ex = true
 								num++
 							}
@@ -100,6 +83,7 @@ func getBestReleaseCandidate(version string, cond []string) {
 
 				})
 			})
+
 			if ex && len(cond) == num {
 				fmt.Println(OUTPUT + ref[i])
 				return
